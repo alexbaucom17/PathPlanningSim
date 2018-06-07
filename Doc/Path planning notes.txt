@@ -1,0 +1,38 @@
+﻿Goals:
+	- Explore a number of different path and trajectory planning algorithms with different types of environments and constraints
+		- A*/D*
+		- RRT
+		- Potential fields
+		- MDP/reward based
+		- Holomonmic vs non-holonomic systems
+		- Static vs dynamic maps
+	- Use a common map/world framework so that performance comparisons can be made between the algorithms
+	- Document and test everything well as practice 
+		- Possibly publish blogs/code as I go, rather than at the end (i.e. when I finish a module)
+	- Possibly turn this into a basic library for future use
+
+Useful documents/sites
+https://en.wikipedia.org/wiki/Motion_planning
+https://en.wikibooks.org/wiki/Robotics/Navigation/Trajectory_Planning
+https://en.wikipedia.org/wiki/D*
+	
+
+Design Notes
+WorldBase -> StaticWorld            -> Discritizer
+          -> DynamicWorld           ->  ^
+These could maybe be the same thing where everything is a dynamic world and in a static world all velocities are 0.
+
+
+World description can be JSON file which describes entities in the world as a type (Rectangle, triangle, circle, polygon) with a motion profile (static, constant vel, constant acc, pvt where there are options for bounded, repeating, reversing)
+
+Discritizer will not be a trivial task to figure out which points are free and which are occupied. May need to do some research on that to figure out how to do efficiently - dynamic world will require constant discritizer updates. Need to figure out if I want to re-discritize whole world or apply motion profiles to discrete world.
+Discritizer will probably look different for different algorithms (maybe experiment with different types), collision detection should be handled
+
+Agent -> has controller and planner
+Controller - > Maybe just simple PID? Maybe perfect controller to start with? This will define constraints on the planner based on where the controller can reach
+Planner -> Static planner (i.e. global) vs local (dynamic) planner
+        Experiment with different types and algorithms. Make these quite modular with similar API to swap out easily
+
+
+Should add unit tests to all modules to sanity check my work
+    Plan is to use standard unittest module and run the tests with green

@@ -1,0 +1,34 @@
+{
+  "Name":"sample_world",
+  "Description":"A simple world for testing things",
+  "Entities": [
+    {
+      "Type":"Rectangle",
+      "Length":5,
+      "Height":3,
+      "InitialPosition": [4, 3],
+      "InitialVelocity": [0, 0],
+      "MotionProfile": {
+        "Type": "Static"
+      }
+    },
+    {
+      "Type":"Circle",
+      "Radius":2,
+      "InitialPosition": [-3, 1],
+      "InitialVelocity": [1, 1],
+      "MotionProfile": {
+        "Type": "ConstVel"
+      }
+    },
+    {
+      "Type":"Circle",
+      "Radius":4,
+      "InitialPosition": [-1, -5],
+      "InitialVelocity": [1, -1],
+      "MotionProfile": {
+        "Type": "ConstVel"
+      }
+    }
+  ]
+}
