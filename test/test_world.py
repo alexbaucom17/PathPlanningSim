@@ -49,8 +49,7 @@ class TestDynamicObjects(unittest.TestCase):
 class TestWorld(unittest.TestCase):
 
     def test_initialization(self):
-        w = World.World('D:\LocalFiles\Github\PathPlanningSim\world_for_unittests.json',
-                        draw_window=False)
+        w = World.World('D:\LocalFiles\Github\PathPlanningSim\world_for_unittests.json')
         self.assertTrue(type(w.entity_list[0]).__qualname__ == 'Static_Rectangle')
         self.assertTrue(type(w.entity_list[1]).__qualname__ == 'ConstVel_Circle')
         self.assertTrue(type(w.entity_list[2]).__qualname__ == 'Static_Triangle')

@@ -5,8 +5,6 @@ import pygame
 
 ID_NUMBER = 0
 
-STEP_TIME = 0.02
-
 #Pygame colors
 WHITE =     (255, 255, 255)
 BLUE =      (  0,   0, 255)
@@ -16,6 +14,7 @@ TEXTCOLOR = (  0,   0,  0)
 
 
 def idGenerator():
+    """Generate a globally unique ID number for an entity"""
     global ID_NUMBER
     ID_NUMBER = ID_NUMBER + 1
     return ID_NUMBER
@@ -38,6 +37,7 @@ class BaseEntity:
 
 
 class Rectangle(BaseEntity):
+    """A derived shape class for a rectangle"""
 
     def __init__(self, shape_data, **kw):
         super(Rectangle, self).__init__(**kw)
@@ -53,6 +53,7 @@ class Rectangle(BaseEntity):
 
 
 class Triangle(BaseEntity):
+    """Derived shape class for a triangle"""
 
     def __init__(self, shape_data, **kw):
         super(Triangle, self).__init__(**kw)
@@ -72,6 +73,7 @@ class Triangle(BaseEntity):
 
 
 class Circle(BaseEntity):
+    """Derived shape class for a circle"""
 
     def __init__(self, shape_data, **kw):
         super(Circle, self).__init__(**kw)
@@ -84,6 +86,7 @@ class Circle(BaseEntity):
 
 
 class MotionBase(BaseEntity):
+    """Implements basic motion parameters and functions"""
 
     def __init__(self, motion_data, **kw):
         super(MotionBase, self).__init__(**kw)
@@ -94,6 +97,7 @@ class MotionBase(BaseEntity):
 
 
 class Static(MotionBase):
+    """Derived motion class for static object"""
 
     def __init__(self, motion_data, **kw):
         super(Static, self).__init__(motion_data, **kw)
@@ -103,6 +107,7 @@ class Static(MotionBase):
 
 
 class ConstVel(MotionBase):
+    """Derived motion class for constant velocity object"""
 
     def __init__(self, motion_data, **kw):
         super(ConstVel, self).__init__(motion_data, **kw)
@@ -138,17 +143,16 @@ def world_to_pixel_frame(window_size, world_coords):
 class World:
     """The world is a collection of entities that exist and may move around"""
 
-    def __init__(self, descriptor_file, window_size=300, draw_window=True):
+    def __init__(self, descriptor_file, window_size=300, world_scale=1, screen=None):
         self.entity_list = self.create_entities_from_file(descriptor_file)
 
         # initialize animation window
-        pygame.init()
         self.window_size = window_size
-        if draw_window:
-            self.screen = pygame.display.set_mode((window_size, window_size))
+        self.world_scale = world_scale
+        if screen:
+            self.screen = screen
             self.screen.fill(WHITE)
             self.draw()
-            pygame.display.update()
 
     def create_entities_from_file(self, file):
         with open(file) as f:
@@ -171,32 +175,8 @@ class World:
         self.screen.fill(WHITE)
         for entity in self.entity_list:
             entity.draw(self.screen)
-        pygame.display.update()
 
 
-# TODO: Maybe add scaling
+# TODO: Maybe add scaling(should scaling and window size be globals or class members?)
 # TODO: Write proper App/GUI wrapper
 # TODO: Clear objects outside of window
-
-
-# Testing GUI
-if __name__ == '__main__':
-    import sys
-    w = World('D:\LocalFiles\Github\PathPlanningSim\sample_world.json',
-              window_size = 750)
-    target_fps = int(1/STEP_TIME)
-    clock = pygame.time.Clock()
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        clock.tick(target_fps)
-        w.step(clock.get_time()/1000.0)
-        w.draw()
-        print(clock.get_fps())
-
-
-
-

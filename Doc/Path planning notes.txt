@@ -1,9 +1,9 @@
 ﻿Goals:
 	- Explore a number of different path and trajectory planning algorithms with different types of environments and constraints
-		- A*/D*
-		- RRT
-		- Potential fields
-		- MDP/reward based
+		- A*/D* (discrete)
+		- RRT (continuous)
+		- Potential fields (continuous)
+		- MDP/reward based (disctrete/continous)
 		- Holomonmic vs non-holonomic systems
 		- Static vs dynamic maps
 	- Use a common map/world framework so that performance comparisons can be made between the algorithms
@@ -36,3 +36,10 @@ Planner -> Static planner (i.e. global) vs local (dynamic) planner
 
 Should add unit tests to all modules to sanity check my work
     Plan is to use standard unittest module and run the tests with green
+
+
+
+TODO: Add world discritizer/planning space conversion
+TODO: Start agent implementation (decide how agent physics will behave)
+TODO: Start controller implementation
+TODO: Start planner implementation
