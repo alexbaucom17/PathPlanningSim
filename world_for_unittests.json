@@ -5,35 +5,35 @@
     {
       "Shape": {
         "Type": "Rectangle",
-        "Length": 50,
-        "Height": 30
+        "Length": 5,
+        "Height": 3
       },
       "Motion": {
         "Type": "Static",
-        "InitialPosition": [80, -50],
+        "InitialPosition": [4, 3],
         "InitialVelocity": [0, 0]
       }
     },
     {
       "Shape": {
         "Type": "Circle",
-        "Radius": 10
+        "Radius": 4
       },
       "Motion": {
         "Type": "ConstVel",
-        "InitialPosition": [0, 0],
-        "InitialVelocity": [15, 20]
+        "InitialPosition": [-3, 1],
+        "InitialVelocity": [1, 1]
       }
     },
     {
       "Shape": {
         "Type": "Triangle",
-        "Length": 30,
-        "Height": 20
+        "Length": 3,
+        "Height": 2
       },
       "Motion": {
         "Type": "Static",
-        "InitialPosition": [30, -100],
+        "InitialPosition": [0, 0],
         "InitialVelocity": [0, 0]
       }
     }
