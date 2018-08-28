@@ -40,6 +40,8 @@ Should add unit tests to all modules to sanity check my work
 
 
 TODO: Add world discritizer/planning space conversion
+	- Discritizer could be image generation
+	- Could also try making each shape create a set of points spaced slightly less than grid size and sample which grid those points are in
 TODO: Start agent implementation (decide how agent physics will behave)
 TODO: Start controller implementation
 TODO: Start planner implementation

@@ -13,7 +13,6 @@ pygame.init()
 screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
 W = World.World(FILE_NAME, window_size=WINDOW_SIZE, screen=screen)
 A = Agent.Agent(screen=screen)
-
 clock = pygame.time.Clock()
 
 #Main loop

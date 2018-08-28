@@ -151,7 +151,7 @@ class World:
         self.world_scale = world_scale
         if screen:
             self.screen = screen
-            self.screen.fill(WHITE)
+            #self.screen.fill(WHITE)
             self.draw()
 
     def create_entities_from_file(self, file):
@@ -176,7 +176,9 @@ class World:
         for entity in self.entity_list:
             entity.draw(self.screen)
 
+    def get_discrete_map_via_mask(self):
+        mask = pygame.mask.from_surface(self.screen)
+
 
 # TODO: Maybe add scaling(should scaling and window size be globals or class members?)
-# TODO: Write proper App/GUI wrapper
-# TODO: Clear objects outside of window
+# TODO: Clear objects outside of window (with some margin)
