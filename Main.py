@@ -11,7 +11,7 @@ FILE_NAME =  'D:\LocalFiles\Github\PathPlanningSim\sample_world.json'
 #Initialization
 pygame.init()
 screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
-W = World.World(FILE_NAME, window_size=WINDOW_SIZE, screen=screen)
+W = World.World(FILE_NAME, screen=screen, world_scale = 1)
 A = Agent.Agent(screen=screen)
 clock = pygame.time.Clock()
 
