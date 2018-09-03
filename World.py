@@ -36,6 +36,8 @@ class BaseEntity:
         return self.pos
 
 
+
+
 class Rectangle(BaseEntity):
     """A derived shape class for a rectangle"""
 
@@ -51,6 +53,24 @@ class Rectangle(BaseEntity):
         px_length = convert_length_from_meters_to_pixels(self.length, world_scale)
         px_height = convert_length_from_meters_to_pixels(self.height, world_scale)
         pygame.draw.rect(screen, RED, (px_xy[0], px_xy[1], px_length, px_height))
+
+    def get_blocked_cells(self, resolution):
+
+        n_steps_x = self.length/resolution
+        start_x = self.pos[0] - self.length / 2.0
+        end_x = start_x + self.length
+        pts_x = np.linspace(start_x,end_x, num=n_steps_x, endpoint=True)
+
+        n_steps_y = self.height / resolution
+        start_y = self.pos[1] - self.height / 2.0
+        end_y = start_y + self.height
+        pts_y = np.linspace(start_y, end_y, num=n_steps_y, endpoint=True)
+
+        blocked_cells = []
+        for px in pts_x:
+            for py in pts_y:
+                blocked_cells.append((px, py))
+        return blocked_cells
 
 
 class Triangle(BaseEntity):
@@ -71,6 +91,9 @@ class Triangle(BaseEntity):
         px_bottom_right = world_to_pixel_frame(bottom_right, window_size, world_scale)
         pygame.draw.polygon(screen, GREEN, [px_top, px_bottom_left, px_bottom_right])
 
+    def get_blocked_cells(self, resolution):
+        return []
+
 
 class Circle(BaseEntity):
     """Derived shape class for a circle"""
@@ -83,6 +106,30 @@ class Circle(BaseEntity):
         px_pos = world_to_pixel_frame(self.pos, window_size, world_scale)
         px_radius = convert_length_from_meters_to_pixels(self.radius, world_scale)
         pygame.draw.circle(screen, BLUE, px_pos, px_radius)
+
+    def get_blocked_cells(self, resolution):
+        """Algorithm from https://stackoverflow.com/questions/15856411/finding-all-the-points-within-a-circle-in-2d-space#answer-15856534 """
+
+        n_steps = self.radius/resolution
+
+        start_x = self.pos[0] - self.radius
+        center_x = self.pos[0]
+        pts_x = np.linspace(start_x,center_x, num=n_steps, endpoint=True)
+
+        start_y = self.pos[1] - self.radius
+        center_y = self.pos[1]
+        pts_y = np.linspace(start_y,center_y, num=n_steps, endpoint=True)
+
+        blocked_cells = []
+        for px in pts_x:
+            for py in pts_y:
+                if (px-center_x)*(px-center_x) + (py-center_y)*(py-center_y) < self.radius*self.radius:
+                    xSym = center_x - (px - center_x)
+                    ySym = center_y - (px - center_y)
+                    blocked_cells.extend([(px,py), (px,ySym), (xSym,py), (xSym,ySym)])
+        return blocked_cells
+
+
 
 
 class MotionBase(BaseEntity):
@@ -277,22 +324,33 @@ class OccupancyGrid:
         self.fill_blocked_cells(blocked_cells)
 
     def fill_blocked_cells(self, blocked_cells):
-        pass
+        for cell in blocked_cells:
+            index = self.position_to_2d_index(cell)
+            self.grid[index[0], index[1]] = True
+
+    def is_blocked(self, index):
+        return self.grid[index[0], index[1]]
 
     def get_grid(self):
-        return self.grid
+        return np.copy(self.grid)
 
     def index_to_meters(self, index):
-        pass
+        return index * self.resolution
 
     def meters_to_index(self, meters):
-        pass
+        return int(meters / self.resolution)
 
     def position_to_2d_index(self, position):
-        pass
+        index = np.array([0, 0])
+        index[0] = int(self.resolution * position[0] + self.size / 2)
+        index[1] = int(-1 * self.resolution * position[1] + self.size / 2)
+        return index
 
     def index_to_2d_position(self, index):
-        pass
+        pos = np.array([0, 0])
+        pos[0] = (index[0] - self.size / 2) / self.resolution
+        pos[1] = -1 * (index[1] - self.size / 2) / self.resolution
+        return pos
 
 
 
