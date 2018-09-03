@@ -19,6 +19,10 @@ W = World.World(FILE_NAME, screen=screen, world_scale = 1)
 A = Agent.Agent(screen=screen)
 clock = pygame.time.Clock()
 
+grid = W.get_occupancy_grid(1)
+grid.debug_draw()
+
+
 #Main loop
 while True:
     for event in pygame.event.get():

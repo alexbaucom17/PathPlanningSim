@@ -2,6 +2,7 @@ import json
 import numpy as np
 import pydoc
 import pygame
+import matplotlib.pyplot as plt
 
 ID_NUMBER = 0
 
@@ -92,7 +93,31 @@ class Triangle(BaseEntity):
         pygame.draw.polygon(screen, GREEN, [px_top, px_bottom_left, px_bottom_right])
 
     def get_blocked_cells(self, resolution):
-        return []
+
+        n_steps_x = self.length / resolution
+        start_x = self.pos[0] - self.length / 2.0
+        end_x = start_x + self.length
+        pts_x = np.linspace(start_x, end_x, num=n_steps_x, endpoint=True)
+
+        n_steps_y = self.height / resolution
+        start_y = self.pos[1] - self.height / 2.0
+        end_y = start_y + self.height
+        pts_y = np.linspace(start_y, end_y, num=n_steps_y, endpoint=True)
+
+        #Solve for line equation of 1 side
+        top = self.pos + np.array([0, self.height / 2.0])
+        bottom_left = self.pos + np.array([-self.length / 2.0, -self.height / 2.0])
+        m = (top[1] - bottom_left[1]) / (top[0] - bottom_left[0])
+        b = top[1] - m * top [0]
+
+        blocked_cells = []
+        for px in pts_x:
+            for py in pts_y:
+                y_test = m * px + b
+                if bottom_left[1] <= py <= y_test:
+                    xSym = self.pos[0] - (px - self.pos[0])
+                    blocked_cells.extend([(px,py), (xSym,py)])
+        return blocked_cells
 
 
 class Circle(BaseEntity):
@@ -303,7 +328,7 @@ class World:
             occ_grid.add_entity(entity)
         return occ_grid
 
-#TODO: complete occupancy grid implimentation
+
 class OccupancyGrid:
     """Stores and provides world information as a 2d boolean numpy array"""
 
@@ -316,7 +341,7 @@ class OccupancyGrid:
 
         self.size = size
         self.resolution = resolution
-        self.n_cells = round(size/resolution)
+        self.n_cells = int(size/resolution)
         self.grid = np.zeros((self.n_cells,self.n_cells), dtype=np.bool)
 
     def add_entity(self, entity):
@@ -351,6 +376,10 @@ class OccupancyGrid:
         pos[0] = (index[0] - self.size / 2) / self.resolution
         pos[1] = -1 * (index[1] - self.size / 2) / self.resolution
         return pos
+
+    def debug_draw(self):
+        plt.imshow(self.grid, cmap='Greys', interpolation='nearest')
+        plt.show()
 
 
 
