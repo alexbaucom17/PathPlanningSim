@@ -2,13 +2,17 @@ import sys
 import World
 import Agent
 import pygame
+import os
 
 #Configuration
 TARGET_FPS = 60
 WINDOW_SIZE = 750
 FILE_NAME =  'D:\LocalFiles\Github\PathPlanningSim\sample_world.json'
+WINDOW_START_POS_X = 500
+WINDOW_START_POS_Y = 100
 
 #Initialization
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (WINDOW_START_POS_X,WINDOW_START_POS_Y)
 pygame.init()
 screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
 W = World.World(FILE_NAME, screen=screen, world_scale = 1)

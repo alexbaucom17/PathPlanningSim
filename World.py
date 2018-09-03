@@ -48,8 +48,9 @@ class Rectangle(BaseEntity):
         x = self.pos[0] - self.length / 2.0
         y = self.pos[1] - self.height / 2.0
         px_xy = world_to_pixel_frame(np.array([x,y]), window_size, world_scale)
-        #TODO: Fix scaling of length/height
-        pygame.draw.rect(screen, RED, (px_xy[0], px_xy[1], self.length, self.height), )
+        px_length = convert_length_from_meters_to_pixels(self.length, world_scale)
+        px_height = convert_length_from_meters_to_pixels(self.height, world_scale)
+        pygame.draw.rect(screen, RED, (px_xy[0], px_xy[1], px_length, px_height))
 
 
 class Triangle(BaseEntity):
@@ -80,8 +81,8 @@ class Circle(BaseEntity):
 
     def draw(self, screen, window_size, world_scale):
         px_pos = world_to_pixel_frame(self.pos, window_size, world_scale)
-        #TODO: fix radius scaling
-        pygame.draw.circle(screen, BLUE, px_pos, self.radius)
+        px_radius = convert_length_from_meters_to_pixels(self.radius, world_scale)
+        pygame.draw.circle(screen, BLUE, px_pos, px_radius)
 
 
 class MotionBase(BaseEntity):
@@ -126,7 +127,24 @@ def create_dynamic_object(motion_class, shape_class):
     NewClass.__qualname__ = "%s_%s" % (motion_class.__name__, shape_class.__name__)
     return NewClass
 
-#TODO: make coordinate conversions into scalar functions and then provide 2d wrappers
+def convert_length_from_pixels_to_meters(pixel_length, world_scale):
+    """
+    Convert an absolute length into meters from pixels, assumes a uniformly scaled, square world
+    :param pixel_length: length in pixels to convert
+    :param world_scale: scaling factor for the world
+    :return: length in meters
+    """
+    return pixel_length / world_scale
+
+def convert_length_from_meters_to_pixels(meter_length, world_scale):
+    """
+    Convert and absolute length into pixels from meters, assumes a uniformly scaled, square world
+    :param meter_length: length in meters to convert
+    :param world_scale: scaling factor for the world
+    :return: length in pixels, note this will be rounded to an integer pixel value, possibly with loss of precision
+    """
+    return int(meter_length * world_scale)
+
 def pixels_to_world_frame(pixel_coords, window_size, world_scale):
     """
     Coinvert pixel coordinates into world coordinates
@@ -146,11 +164,11 @@ def world_to_pixel_frame(world_coords, window_size, world_scale ):
     :param world_coords: 2d world coordinates in meters
     :param window_size: size of display window in pixels
     :param world_scale: scaling value of pixels/meter
-    :return: Numpy vector of pixel coordinates
+    :return: Numpy vector of pixel coordinates, note this will be rounded to an integer pixel value, possibly with loss of precision
     """
     pixel_coords = np.array([0, 0])
-    pixel_coords[0] = world_scale*world_coords[0] + window_size/2
-    pixel_coords[1] = -1*world_scale*world_coords[1] + window_size/2
+    pixel_coords[0] = int(world_scale*world_coords[0] + window_size/2)
+    pixel_coords[1] = int(-1*world_scale*world_coords[1] + window_size/2)
     return pixel_coords
 
 class World:
@@ -183,6 +201,11 @@ class World:
             self.world_scale = None
             self.physics_limit = physics_limit
 
+        print('World initialized with '+str(len(self.entity_list))+' entities.')
+        print('World scale set to '+str(self.world_scale)+' pixels/meter')
+        print('Physics limit set to ' + str(self.physics_limit) +' meters.')
+        print('Display mode set to '+self.display_mode.lower())
+
     def create_entities_from_file(self, file):
         """Open a JSON file an generate world entities from the file"""
         with open(file) as f:
@@ -191,7 +214,7 @@ class World:
 
     def get_physicis_limit_from_screen(self, buffer_fraction):
         """Generates the physicis limits from the pygame screen size"""
-        screen_size_in_pixels = [self.window_size/2, self.window_size/2]
+        screen_size_in_pixels = [self.window_size, self.window_size]
         screen_size_in_meters = pixels_to_world_frame(screen_size_in_pixels, self.window_size, self.world_scale)
         return screen_size_in_meters[0] * (1+buffer_fraction)
 
@@ -208,8 +231,11 @@ class World:
         """Perform a physics time step for each entity in the world"""
         for entity in self.entity_list:
             entity.update(dt)
-
-        # TODO: Clear objects outside physics limit
+            cur_pos = entity.get_position()
+            if abs(cur_pos[0]) > self.physics_limit or \
+               abs(cur_pos[1]) > self.physics_limit:
+               self.entity_list.remove(entity)
+               print('Removed entity from world at pos: '+str(cur_pos))
 
     def draw(self):
         """Draw the world"""
@@ -230,7 +256,7 @@ class World:
             occ_grid.add_entity(entity)
         return occ_grid
 
-
+#TODO: complete occupancy grid implimentation
 class OccupancyGrid:
     """Stores and provides world information as a 2d boolean numpy array"""
 
