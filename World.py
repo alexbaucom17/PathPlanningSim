@@ -57,12 +57,12 @@ class Rectangle(BaseEntity):
 
     def get_blocked_cells(self, resolution):
 
-        n_steps_x = self.length/resolution
+        n_steps_x = int(self.length/resolution)
         start_x = self.pos[0] - self.length / 2.0
         end_x = start_x + self.length
         pts_x = np.linspace(start_x,end_x, num=n_steps_x, endpoint=True)
 
-        n_steps_y = self.height / resolution
+        n_steps_y = int(self.height / resolution)
         start_y = self.pos[1] - self.height / 2.0
         end_y = start_y + self.height
         pts_y = np.linspace(start_y, end_y, num=n_steps_y, endpoint=True)
@@ -94,12 +94,12 @@ class Triangle(BaseEntity):
 
     def get_blocked_cells(self, resolution):
 
-        n_steps_x = self.length / resolution
+        n_steps_x = int(self.length / resolution)
         start_x = self.pos[0] - self.length / 2.0
-        end_x = start_x + self.length
+        end_x = start_x + self.length / 2.0
         pts_x = np.linspace(start_x, end_x, num=n_steps_x, endpoint=True)
 
-        n_steps_y = self.height / resolution
+        n_steps_y = int(self.height / resolution)
         start_y = self.pos[1] - self.height / 2.0
         end_y = start_y + self.height
         pts_y = np.linspace(start_y, end_y, num=n_steps_y, endpoint=True)
@@ -112,8 +112,8 @@ class Triangle(BaseEntity):
 
         blocked_cells = []
         for px in pts_x:
+            y_test = m * px + b
             for py in pts_y:
-                y_test = m * px + b
                 if bottom_left[1] <= py <= y_test:
                     xSym = self.pos[0] - (px - self.pos[0])
                     blocked_cells.extend([(px,py), (xSym,py)])
@@ -133,9 +133,9 @@ class Circle(BaseEntity):
         pygame.draw.circle(screen, BLUE, px_pos, px_radius)
 
     def get_blocked_cells(self, resolution):
-        """Algorithm from https://stackoverflow.com/questions/15856411/finding-all-the-points-within-a-circle-in-2d-space#answer-15856534 """
+        """Algorithm from https://stackoverflow.com/questions/15856411/finding-all-the-points-within-a-circle-in-2d-space """
 
-        n_steps = self.radius/resolution
+        n_steps = int(self.radius/resolution)
 
         start_x = self.pos[0] - self.radius
         center_x = self.pos[0]
@@ -148,9 +148,9 @@ class Circle(BaseEntity):
         blocked_cells = []
         for px in pts_x:
             for py in pts_y:
-                if (px-center_x)*(px-center_x) + (py-center_y)*(py-center_y) < self.radius*self.radius:
+                if (px-center_x)*(px-center_x) + (py-center_y)*(py-center_y) <= self.radius*self.radius:
                     xSym = center_x - (px - center_x)
-                    ySym = center_y - (px - center_y)
+                    ySym = center_y - (py - center_y)
                     blocked_cells.extend([(px,py), (px,ySym), (xSym,py), (xSym,ySym)])
         return blocked_cells
 
@@ -345,13 +345,16 @@ class OccupancyGrid:
         self.grid = np.zeros((self.n_cells,self.n_cells), dtype=np.bool)
 
     def add_entity(self, entity):
-        blocked_cells = entity.get_blocked_cells(self.resolution)
+        blocked_cells = entity.get_blocked_cells(0.9*self.resolution) #Scaling resolution is a bit of a hack to avoid rounding errors
         self.fill_blocked_cells(blocked_cells)
 
     def fill_blocked_cells(self, blocked_cells):
         for cell in blocked_cells:
             index = self.position_to_2d_index(cell)
-            self.grid[index[0], index[1]] = True
+            try:
+                self.grid[index[0], index[1]] = True
+            except IndexError:
+                pass
 
     def is_blocked(self, index):
         return self.grid[index[0], index[1]]
@@ -367,19 +370,18 @@ class OccupancyGrid:
 
     def position_to_2d_index(self, position):
         index = np.array([0, 0])
-        index[0] = int(self.resolution * position[0] + self.size / 2)
-        index[1] = int(-1 * self.resolution * position[1] + self.size / 2)
+        index[1] = int(self.resolution * position[0] + self.size / 2)
+        index[0] = int(-1 * self.resolution * position[1] + self.size / 2)
         return index
 
     def index_to_2d_position(self, index):
         pos = np.array([0, 0])
-        pos[0] = (index[0] - self.size / 2) / self.resolution
-        pos[1] = -1 * (index[1] - self.size / 2) / self.resolution
+        pos[1] = (index[0] - self.size / 2) / self.resolution
+        pos[0] = -1 * (index[1] - self.size / 2) / self.resolution
         return pos
 
     def debug_draw(self):
         plt.imshow(self.grid, cmap='Greys', interpolation='nearest')
-        plt.show()
 
 
 
