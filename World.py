@@ -307,7 +307,7 @@ class World:
             if abs(cur_pos[0]) > self.physics_limit or \
                abs(cur_pos[1]) > self.physics_limit:
                self.entity_list.remove(entity)
-               print('Removed entity from world at pos: '+str(cur_pos))
+               print('Removed entity ' +str(entity.get_id())+ ' from world at pos: '+str(cur_pos))
 
     def draw(self):
         """Draw the world"""
