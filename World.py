@@ -329,6 +329,21 @@ class World:
         return occ_grid
 
 
+def occupancy_grid_from_numpy_array(grid, resolution = 1):
+    if grid.shape[0] != grid.shape[1]:
+        raise ValueError('Grid must be square')
+
+    n_cells = grid.shape[0]
+    size_in_meters = n_cells * resolution
+    og = OccupancyGrid(size_in_meters, resolution)
+
+    if og.n_cells != n_cells:
+        raise ValueError('Size mistmatch')
+
+    og.grid = grid
+    return og
+
+
 class OccupancyGrid:
     """Stores and provides world information as a 2d boolean numpy array"""
 
@@ -358,6 +373,12 @@ class OccupancyGrid:
 
     def is_blocked(self, index):
         return self.grid[index[0], index[1]]
+
+    def is_out_of_bounds(self, point):
+        if point[0] < 0 or point[0] >= self.n_cells or point[1] < 0 or point[1] >= self.n_cells:
+            return True
+        else:
+            return False
 
     def get_grid(self):
         return np.copy(self.grid)

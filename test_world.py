@@ -59,27 +59,27 @@ class TestWorld(unittest.TestCase):
 
         pc = np.array([150, 150])
         wc_act = np.array([0, 0])
-        wc_test = World.pixels_to_world_frame(window,pc)
+        wc_test = World.pixels_to_world_frame(pc, window, 1)
         self.assertTrue(np.all(wc_act == wc_test))
 
         pc = np.array([0, 0])
         wc_act = np.array([-150, 150])
-        wc_test = World.pixels_to_world_frame(window, pc)
+        wc_test = World.pixels_to_world_frame(pc, window, 1)
         self.assertTrue(np.all(wc_act == wc_test))
 
         pc = np.array([300, 0])
         wc_act = np.array([150, 150])
-        wc_test = World.pixels_to_world_frame(window, pc)
+        wc_test = World.pixels_to_world_frame(pc, window, 1)
         self.assertTrue(np.all(wc_act == wc_test))
 
         pc = np.array([0, 300])
         wc_act = np.array([-150, -150])
-        wc_test = World.pixels_to_world_frame(window, pc)
+        wc_test = World.pixels_to_world_frame(pc, window, 1)
         self.assertTrue(np.all(wc_act == wc_test))
 
         pc = np.array([300, 300])
         wc_act = np.array([150, -150])
-        wc_test = World.pixels_to_world_frame(window, pc)
+        wc_test = World.pixels_to_world_frame(pc, window, 1)
         self.assertTrue(np.all(wc_act == wc_test))
 
     def test_world_to_pixel(self):
@@ -87,27 +87,27 @@ class TestWorld(unittest.TestCase):
 
         pc_act = np.array([150, 150])
         wc = np.array([0, 0])
-        pc_test = World.world_to_pixel_frame(window,wc)
+        pc_test = World.world_to_pixel_frame(wc, window, 1)
         self.assertTrue(np.all(pc_act == pc_test))
 
         pc_act = np.array([0, 0])
         wc = np.array([-150, 150])
-        pc_test = World.world_to_pixel_frame(window, wc)
+        pc_test = World.world_to_pixel_frame(wc, window, 1)
         self.assertTrue(np.all(pc_act == pc_test))
 
         pc_act = np.array([300, 0])
         wc = np.array([150, 150])
-        pc_test = World.world_to_pixel_frame(window, wc)
+        pc_test = World.world_to_pixel_frame(wc, window, 1)
         self.assertTrue(np.all(pc_act == pc_test))
 
         pc_act = np.array([0, 300])
         wc = np.array([-150, -150])
-        pc_test = World.world_to_pixel_frame(window, wc)
+        pc_test = World.world_to_pixel_frame(wc, window, 1)
         self.assertTrue(np.all(pc_act == pc_test))
 
         pc_act = np.array([300, 300])
         wc = np.array([150, -150])
-        pc_test = World.world_to_pixel_frame(window, wc)
+        pc_test = World.world_to_pixel_frame(wc, window, 1)
         self.assertTrue(np.all(pc_act == pc_test))
 
 
