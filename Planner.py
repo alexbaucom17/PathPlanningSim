@@ -69,14 +69,15 @@ class AStarPlanner:
 
         # If start or end is blocked, there is no feasible path
         if grid.is_blocked(start) or grid.is_blocked(end):
-            return []
+            return [],[]
 
         # If the start position and the end are the same point, return that point as the path
         if np.all(start == end):
-            return start
+            return start,[]
 
         # Initialize queue with start position
         queue = []
+        explored_points = []
         score = computeEuclideanDistance(start, end)
         counter = 0 # unique counter for points to ensure tuple comparison functions correctly
         entry = (score, counter, (start, [list(start)], 0))
@@ -87,17 +88,18 @@ class AStarPlanner:
 
             # if there are no points left to pop, then there is no feasible path
             if len(queue) == 0:
-                return []
+                return [], explored_points
 
             # Get next entry from heap
             score, count, node = heapq.heappop(queue)
             point = node[0]
             path = node[1]
             path_cost = node[2]
+            explored_points.append(list(point))
 
             # If the point we pop is the goal, then we are done and can return the path
             if np.all(point == end):
-                return path
+                return path, explored_points
 
             # Expand neighbors of the current point
             neighbors = self.get_neighbors(grid, point)

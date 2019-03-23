@@ -20,7 +20,7 @@
         "Radius": 10
       },
       "Motion": {
-        "Type": "ConstVel",
+        "Type": "Static",
         "InitialPosition": [0, 0],
         "InitialVelocity": [15, 20]
       }

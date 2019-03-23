@@ -199,49 +199,7 @@ def create_dynamic_object(motion_class, shape_class):
     NewClass.__qualname__ = "%s_%s" % (motion_class.__name__, shape_class.__name__)
     return NewClass
 
-def convert_length_from_pixels_to_meters(pixel_length, world_scale):
-    """
-    Convert an absolute length into meters from pixels, assumes a uniformly scaled, square world
-    :param pixel_length: length in pixels to convert
-    :param world_scale: scaling factor for the world
-    :return: length in meters
-    """
-    return pixel_length / world_scale
 
-def convert_length_from_meters_to_pixels(meter_length, world_scale):
-    """
-    Convert and absolute length into pixels from meters, assumes a uniformly scaled, square world
-    :param meter_length: length in meters to convert
-    :param world_scale: scaling factor for the world
-    :return: length in pixels, note this will be rounded to an integer pixel value, possibly with loss of precision
-    """
-    return int(meter_length * world_scale)
-
-def pixels_to_world_frame(pixel_coords, window_size, world_scale):
-    """
-    Coinvert pixel coordinates into world coordinates
-    :param pixel_coords: 2d pixel coordinates
-    :param window_size: size of display window in pixels
-    :param world_scale: scaling value of pixels/meter
-    :return: Numpy vector of world coordinates
-    """
-    world_coords = np.array([0, 0])
-    world_coords[0] = (pixel_coords[0] - window_size/2) / world_scale
-    world_coords[1] = -1*(pixel_coords[1] - window_size/2) / world_scale
-    return world_coords
-
-def world_to_pixel_frame(world_coords, window_size, world_scale ):
-    """
-    Convert world coordinates to pixel coordiantes
-    :param world_coords: 2d world coordinates in meters
-    :param window_size: size of display window in pixels
-    :param world_scale: scaling value of pixels/meter
-    :return: Numpy vector of pixel coordinates, note this will be rounded to an integer pixel value, possibly with loss of precision
-    """
-    pixel_coords = np.array([0, 0])
-    pixel_coords[0] = int(world_scale*world_coords[0] + window_size/2)
-    pixel_coords[1] = int(-1*world_scale*world_coords[1] + window_size/2)
-    return pixel_coords
 
 class World:
     """The world is a collection of entities that exist and may move around"""
@@ -256,25 +214,21 @@ class World:
         """
 
         self.entity_list = self.create_entities_from_file(descriptor_file)
+        self.scale_converter = ScaleConverter(screen, world_scale = world_scale, cell_resolution = 1)
 
         # initialize animation window
         if screen:
             self.display_mode = 'Screen'
             self.screen = screen
             self.screen.fill(WHITE)
-            self.window_size = self.screen.get_width()
-            self.world_scale = world_scale
-            self.physics_limit = self.get_physicis_limit_from_screen(0.2)
+            self.physics_limit = self.get_physics_limit_from_screen(0.2)
             self.draw()
         else:
             self.display_mode = 'None'
             self.screen = None
-            self.window_size = None
-            self.world_scale = None
             self.physics_limit = physics_limit
 
         print('World initialized with '+str(len(self.entity_list))+' entities.')
-        print('World scale set to '+str(self.world_scale)+' pixels/meter')
         print('Physics limit set to ' + str(self.physics_limit) +' meters.')
         print('Display mode set to '+self.display_mode.lower())
 
@@ -284,8 +238,8 @@ class World:
             file_data = json.load(f)
         return [self.create_entity(entity_data) for entity_data in file_data['Entities']]
 
-    def get_physicis_limit_from_screen(self, buffer_fraction):
-        """Generates the physicis limits from the pygame screen size"""
+    def get_physics_limit_from_screen(self, buffer_fraction):
+        """Generates the physics limits from the pygame screen size"""
         screen_size_in_pixels = [self.window_size, self.window_size]
         screen_size_in_meters = pixels_to_world_frame(screen_size_in_pixels, self.window_size, self.world_scale)
         return screen_size_in_meters[0] * (1+buffer_fraction)
@@ -405,7 +359,61 @@ class OccupancyGrid:
         plt.imshow(self.grid, cmap='Greys', interpolation='nearest')
 
 
+class ScaleConverter:
 
+    def __init__(self, screen, world_scale = 1, cell_resolution = 1):
+        self.window_size = screen.get_width()
+        self.world_scale = world_scale
+        self.cell_resolution = cell_resolution
+
+        print('World scale set to '+str(self.world_scale)+' pixels/meter')
+        print('Cell resolution set to ' +str(self.cell_resolution)+' meters/cell')
+
+    def
+
+    def convert_length_from_pixels_to_meters(pixel_length, world_scale):
+        """
+        Convert an absolute length into meters from pixels, assumes a uniformly scaled, square world
+        :param pixel_length: length in pixels to convert
+        :param world_scale: scaling factor for the world
+        :return: length in meters
+        """
+        return pixel_length / world_scale
+
+    def convert_length_from_meters_to_pixels(meter_length, world_scale):
+        """
+        Convert and absolute length into pixels from meters, assumes a uniformly scaled, square world
+        :param meter_length: length in meters to convert
+        :param world_scale: scaling factor for the world
+        :return: length in pixels, note this will be rounded to an integer pixel value, possibly with loss of precision
+        """
+        return int(meter_length * world_scale)
+
+    def pixels_to_world_frame(pixel_coords, window_size, world_scale):
+        """
+        Coinvert pixel coordinates into world coordinates
+        :param pixel_coords: 2d pixel coordinates
+        :param window_size: size of display window in pixels
+        :param world_scale: scaling value of pixels/meter
+        :return: Numpy vector of world coordinates
+        """
+        world_coords = np.array([0, 0])
+        world_coords[0] = (pixel_coords[0] - window_size / 2) / world_scale
+        world_coords[1] = -1 * (pixel_coords[1] - window_size / 2) / world_scale
+        return world_coords
+
+    def world_to_pixel_frame(world_coords, window_size, world_scale):
+        """
+        Convert world coordinates to pixel coordiantes
+        :param world_coords: 2d world coordinates in meters
+        :param window_size: size of display window in pixels
+        :param world_scale: scaling value of pixels/meter
+        :return: Numpy vector of pixel coordinates, note this will be rounded to an integer pixel value, possibly with loss of precision
+        """
+        pixel_coords = np.array([0, 0])
+        pixel_coords[0] = int(world_scale * world_coords[0] + window_size / 2)
+        pixel_coords[1] = int(-1 * world_scale * world_coords[1] + window_size / 2)
+        return pixel_coords
 
 
 
